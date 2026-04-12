@@ -165,7 +165,7 @@ export default function App() {
               className="mt-16 mb-8 w-full max-w-[200px] mx-auto"
             >
               <button 
-                onClick={() => window.location.href = '/anshundixi/gallery.html'}
+                onClick={() => window.location.href = 'gallery.html'}
                 className="w-full py-3 px-6 rounded-none border border-red-600 text-white hover:bg-red-600/10 transition-colors text-sm tracking-[0.2em] font-medium uppercase"
               >
                 了解更多
