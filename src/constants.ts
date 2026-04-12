@@ -5,12 +5,12 @@ import muguiyingImg from './assets/穆桂英.svg';
 import fanlihuaImg from './assets/樊梨花.svg';
 import shetaijunImg from './assets/佘太君.svg';
 
-import guanyuAudio from './assets/关羽.mp3';
-import zhangfeiAudio from './assets/张飞.mp3';
-import caocaoAudio from './assets/曹操.mp3';
-import muguiyingAudio from './assets/穆桂英.mp3';
-import fanlihuaAudio from './assets/樊梨花.mp3';
-import shetaijunAudio from './assets/佘太君.mp3';
+import guanyuAudio from './assets/关羽combine_1.mp3';
+import zhangfeiAudio from './assets/张飞combine_2.mp3';
+import caocaoAudio from './assets/曹操combine_2.mp3';
+import muguiyingAudio from './assets/穆桂英combine_1.mp3';
+import fanlihuaAudio from './assets/樊梨花combine_1.mp3';
+import shetaijunAudio from './assets/佘太君combine_2.mp3';
 
 export interface Character {
   id: string;
