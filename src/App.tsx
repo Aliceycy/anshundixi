@@ -34,12 +34,19 @@ export default function App() {
   const playAudio = (url: string) => {
     stopAudio();
     audioRef.current = new Audio(url);
+    
+    // Automatically close the overlay when the audio finishes playing
+    audioRef.current.onended = () => {
+      setSelectedId(null);
+    };
+    
     audioRef.current.play().catch((e) => console.log('Audio play failed:', e));
   };
 
   const stopAudio = () => {
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.onended = null;
       audioRef.current = null;
     }
   };
@@ -61,7 +68,7 @@ export default function App() {
 
   return (
     <div 
-      className="relative min-h-screen w-full bg-[#050505] overflow-hidden font-sans text-white"
+      className="relative min-h-screen w-full bg-[#050505] overflow-x-hidden overflow-y-auto font-sans text-white"
       onClick={handleBackgroundClick}
     >
       {/* Background Ambient Glow */}
@@ -77,7 +84,7 @@ export default function App() {
         />
       </div>
 
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6 pb-20">
+      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen py-12 px-6 pb-32 md:pb-24">
         {/* Header (Hidden when a character is selected to focus on it) */}
         <AnimatePresence>
           {!selectedId && (
@@ -94,7 +101,7 @@ export default function App() {
                 Anshun Dixi Opera
               </p>
               <p className="text-[10px] uppercase tracking-[0.4em] text-white/40">
-                Voice by 安顺地戏传承人周顺 & 设计师穆蓉
+                Voice by 安顺地戏传承人周顺
               </p>
             </motion.div>
           )}
@@ -148,6 +155,25 @@ export default function App() {
           })}
         </div>
 
+        {/* Learn More Button */}
+        <AnimatePresence>
+          {!selectedId && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="mt-16 mb-8 w-full max-w-[200px] mx-auto"
+            >
+              <button 
+                onClick={() => window.location.href = '/anshundixi/gallery.html'}
+                className="w-full py-3 px-6 rounded-none border border-red-600 text-white hover:bg-red-600/10 transition-colors text-sm tracking-[0.2em] font-medium uppercase"
+              >
+                了解更多
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Selected Character Overlay */}
         <AnimatePresence>
           {selectedCharacter && (
@@ -156,83 +182,82 @@ export default function App() {
               animate={{ opacity: 1, backdropFilter: 'blur(12px)' }}
               exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 pointer-events-auto"
+              className="fixed inset-0 z-50 flex flex-col bg-black/40 pointer-events-auto"
               onClick={handleBackgroundClick}
             >
-              <motion.div
-                layoutId={`char-${selectedCharacter.id}`}
-                className="w-64 h-64 md:w-80 md:h-80 pointer-events-auto cursor-pointer relative z-[60]"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedId(null);
-                  stopAudio();
-                }}
-              >
-                <img
-                  src={selectedCharacter.image}
-                  alt={selectedCharacter.name}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.3)]"
-                />
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Selected Content Overlay */}
-        <AnimatePresence>
-          {selectedCharacter && (
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="fixed bottom-[15%] left-0 right-0 z-[70] px-8 text-center pointer-events-none"
-            >
-              <div className="max-w-xl mx-auto space-y-6">
+              {/* Mask Container */}
+              <div className="flex-1 flex items-center justify-center min-h-0 pt-8 md:pt-0">
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="space-y-2"
+                  layoutId={`char-${selectedCharacter.id}`}
+                  className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 pointer-events-auto cursor-pointer relative z-[60]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedId(null);
+                    stopAudio();
+                  }}
                 >
-                  <p className="text-2xl md:text-3xl font-bold tracking-tight text-white">
-                    {selectedCharacter.modernText}
-                  </p>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <p className="text-sm md:text-base font-serif text-white/60 italic">
-                    {selectedCharacter.traditionalText}
-                  </p>
-                </motion.div>
-
-                {/* Waveform visualizer placeholder */}
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="flex justify-center gap-1 h-4 items-center"
-                >
-                  {[...Array(12)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      animate={{
-                        height: [4, 12, 6, 16, 4],
-                      }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 0.5 + Math.random() * 0.5,
-                        ease: "easeInOut",
-                      }}
-                      className="w-1 bg-white/40 rounded-full"
-                    />
-                  ))}
+                  <img
+                    src={selectedCharacter.image}
+                    alt={selectedCharacter.name}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.3)]"
+                  />
                 </motion.div>
               </div>
+
+              {/* Text Container */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="shrink-0 pb-12 sm:pb-16 md:pb-[10%] px-6 md:px-8 text-center z-[70] pointer-events-none"
+              >
+                <div className="max-w-xl mx-auto space-y-4 md:space-y-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-2"
+                  >
+                    <p className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+                      {selectedCharacter.modernText}
+                    </p>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <p className="text-sm md:text-base font-serif text-white/60 italic">
+                      {selectedCharacter.traditionalText}
+                    </p>
+                  </motion.div>
+
+                  {/* Waveform visualizer placeholder */}
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="flex justify-center gap-1 h-4 items-center"
+                  >
+                    {[...Array(12)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        animate={{
+                          height: [4, 12, 6, 16, 4],
+                        }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 0.5 + Math.random() * 0.5,
+                          ease: "easeInOut",
+                        }}
+                        className="w-1 bg-white/40 rounded-full"
+                      />
+                    ))}
+                  </motion.div>
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
