@@ -120,22 +120,97 @@ main.sphere-main {
   z-index: 20;
   pointer-events: none;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: var(--viewer-pad);
 }
 
 .viewer .frame {
-  height: 100%;
+  height: 55%;
+  max-height: 600px;
   aspect-ratio: 1;
   border-radius: var(--enlarge-radius, 32px);
   display: flex;
+  margin-bottom: 20px;
+}
+
+.viewer .info-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  opacity: 0;
+  transition: opacity 500ms ease, transform 500ms ease;
+  transform: translateY(20px);
+  pointer-events: none;
+  max-width: 600px;
+  text-align: center;
+}
+
+.sphere-root[data-enlarging='true'] .viewer .info-panel {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.info-panel .quote {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.info-panel .poem {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.info-panel .description {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.5rem;
+}
+
+.info-panel .background {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.info-panel .keywords {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.info-panel .keyword {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.05em;
 }
 
 @media (max-aspect-ratio: 1/1) {
   .viewer .frame {
     height: auto;
-    width: 100%;
+    width: 90%;
+    margin-bottom: 16px;
+  }
+  
+  .info-panel .quote {
+    font-size: 1.1rem;
+  }
+  .info-panel .poem {
+    font-size: 0.9rem;
+  }
+  .info-panel .background {
+    font-size: 0.8rem;
   }
 }
 

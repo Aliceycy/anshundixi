@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useCallback, useState } from 'react';
 import { useGesture } from '@use-gesture/react';
 import './DomeGallery.css';
 
@@ -73,7 +73,15 @@ function buildItems(pool, seg) {
     if (typeof image === 'string') {
       return { src: image, alt: '' };
     }
-    return { src: image.src || '', alt: image.alt || '' };
+    return { 
+      src: image.src || '', 
+      alt: image.alt || '',
+      description: image.description || '',
+      background: image.background || '',
+      keywords: image.keywords || [],
+      modernText: image.modernText || '',
+      traditionalText: image.traditionalText || ''
+    };
   });
 
   const usedImages = Array.from({ length: totalSlots }, (_, i) => normalizedImages[i % normalizedImages.length]);
@@ -94,7 +102,12 @@ function buildItems(pool, seg) {
   return coords.map((c, i) => ({
     ...c,
     src: usedImages[i].src,
-    alt: usedImages[i].alt
+    alt: usedImages[i].alt,
+    description: usedImages[i].description,
+    background: usedImages[i].background,
+    keywords: usedImages[i].keywords,
+    modernText: usedImages[i].modernText,
+    traditionalText: usedImages[i].traditionalText
   }));
 }
 
@@ -142,6 +155,8 @@ export default function DomeGallery({
   const openingRef = useRef(false);
   const openStartedAtRef = useRef(0);
   const lastDragEndAt = useRef(0);
+
+  const [activeItem, setActiveItem] = useState(null);
 
   const scrollLockedRef = useRef(false);
   const lockScroll = useCallback(() => {
@@ -367,6 +382,7 @@ export default function DomeGallery({
         focusedElRef.current = null;
         rootRef.current?.removeAttribute('data-enlarging');
         openingRef.current = false;
+        setActiveItem(null);
         unlockScroll();
         return;
       }
@@ -426,6 +442,7 @@ export default function DomeGallery({
                 el.style.transition = '';
                 el.style.opacity = '';
                 openingRef.current = false;
+                setActiveItem(null);
                 if (!draggingRef.current && rootRef.current?.getAttribute('data-enlarging') !== 'true')
                   document.body.classList.remove('dg-scroll-lock');
               }, 300);
@@ -455,6 +472,19 @@ export default function DomeGallery({
       const parent = el.parentElement;
       focusedElRef.current = el;
       el.setAttribute('data-focused', 'true');
+      
+      try {
+        setActiveItem({
+          description: parent.dataset.description || '',
+          background: parent.dataset.background || '',
+          modernText: parent.dataset.modernText || '',
+          traditionalText: parent.dataset.traditionalText || '',
+          keywords: JSON.parse(parent.dataset.keywords || '[]')
+        });
+      } catch (e) {
+        console.error('Failed to parse keywords', e);
+      }
+
       const offsetX = getDataNumber(parent, 'offsetX', 0);
       const offsetY = getDataNumber(parent, 'offsetY', 0);
       const sizeX = getDataNumber(parent, 'sizeX', 2);
@@ -557,7 +587,7 @@ export default function DomeGallery({
         overlay.addEventListener('transitionend', onFirstEnd);
       }
     },
-    [enlargeTransitionMs, lockScroll, openedImageHeight, openedImageWidth, segments, unlockScroll]
+    [enlargeTransitionMs, lockScroll, openedImageHeight, openedImageWidth, segments, unlockScroll, setActiveItem]
   );
 
   const onTileClick = useCallback(
@@ -614,6 +644,11 @@ export default function DomeGallery({
                 data-offset-y={it.y}
                 data-size-x={it.sizeX}
                 data-size-y={it.sizeY}
+                data-description={it.description}
+                data-background={it.background}
+                data-modern-text={it.modernText}
+                data-traditional-text={it.traditionalText}
+                data-keywords={JSON.stringify(it.keywords || [])}
                 style={{
                   ['--offset-x']: it.x,
                   ['--offset-y']: it.y,
@@ -659,6 +694,23 @@ export default function DomeGallery({
         <div className="viewer" ref={viewerRef}>
           <div ref={scrimRef} className="scrim" />
           <div ref={frameRef} className="frame" />
+          <div className="info-panel">
+            {activeItem && (
+              <>
+                {activeItem.modernText && <div className="quote">{activeItem.modernText}</div>}
+                {activeItem.traditionalText && <div className="poem">{activeItem.traditionalText}</div>}
+                {activeItem.description && <div className="description">{activeItem.description}</div>}
+                {activeItem.background && <div className="background">{activeItem.background}</div>}
+                {activeItem.keywords && activeItem.keywords.length > 0 && (
+                  <div className="keywords">
+                    {activeItem.keywords.map((kw, idx) => (
+                      <span key={idx} className="keyword">{kw}</span>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </main>
     </div>
