@@ -90,8 +90,11 @@ export default function App() {
               <h1 className="font-display text-4xl md:text-6xl tracking-tighter mb-2 bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">
                 安顺地戏
               </h1>
-              <p className="text-white/40 text-sm tracking-[0.3em] uppercase">
+              <p className="text-white/40 text-sm tracking-[0.3em] uppercase mb-4">
                 Anshun Dixi Opera
+              </p>
+              <p className="text-[10px] uppercase tracking-[0.4em] text-white/40">
+                Voice by 安顺地戏传承人周顺 & 设计师穆蓉
               </p>
             </motion.div>
           )}
@@ -148,13 +151,17 @@ export default function App() {
         {/* Selected Character Overlay */}
         <AnimatePresence>
           {selectedCharacter && (
-            <div 
-              className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+            <motion.div 
+              initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+              animate={{ opacity: 1, backdropFilter: 'blur(12px)' }}
+              exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 pointer-events-auto"
               onClick={handleBackgroundClick}
             >
               <motion.div
                 layoutId={`char-${selectedCharacter.id}`}
-                className="w-64 h-64 md:w-80 md:h-80 pointer-events-auto cursor-pointer"
+                className="w-64 h-64 md:w-80 md:h-80 pointer-events-auto cursor-pointer relative z-[60]"
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedId(null);
@@ -168,7 +175,7 @@ export default function App() {
                   className="w-full h-full object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.3)]"
                 />
               </motion.div>
-            </div>
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -179,7 +186,7 @@ export default function App() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="fixed bottom-[15%] left-0 right-0 z-[60] px-8 text-center pointer-events-none"
+              className="fixed bottom-[15%] left-0 right-0 z-[70] px-8 text-center pointer-events-none"
             >
               <div className="max-w-xl mx-auto space-y-6">
                 <motion.div
