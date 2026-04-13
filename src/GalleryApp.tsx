@@ -20,7 +20,7 @@ export default function GalleryApp() {
       <motion.button
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        onClick={() => window.location.href = 'index.html'}
+        onClick={() => window.location.href = 'index.html?skipIntro=true'}
         className="absolute top-8 left-8 z-50 flex items-center gap-2 text-white/60 hover:text-white transition-colors group"
       >
         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />

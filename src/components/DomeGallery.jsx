@@ -157,6 +157,7 @@ export default function DomeGallery({
   const lastDragEndAt = useRef(0);
 
   const [activeItem, setActiveItem] = useState(null);
+  const [infoPanelStyle, setInfoPanelStyle] = useState(null);
 
   const scrollLockedRef = useRef(false);
   const lockScroll = useCallback(() => {
@@ -619,100 +620,149 @@ export default function DomeGallery({
     };
   }, []);
 
+  useEffect(() => {
+    if (!activeItem || !frameRef.current) {
+      setInfoPanelStyle(null);
+      return;
+    }
+
+    const updateInfoPanelPosition = () => {
+      const frameR = frameRef.current?.getBoundingClientRect();
+      const viewerEl = viewerRef.current;
+      if (!frameR || !viewerEl) return;
+
+      const viewerR = viewerEl.getBoundingClientRect();
+      const cs = window.getComputedStyle(viewerEl);
+      const padTop = parseFloat(cs.paddingTop) || 0;
+      const padRight = parseFloat(cs.paddingRight) || 0;
+      const padBottom = parseFloat(cs.paddingBottom) || 0;
+      const padLeft = parseFloat(cs.paddingLeft) || 0;
+
+      const contentWidth = Math.max(1, viewerR.width - padLeft - padRight);
+      const contentHeight = Math.max(1, viewerR.height - padTop - padBottom);
+      const sidePadding = Math.max(16, Math.round(contentWidth * 0.04));
+      const maxWidth = Math.min(600, contentWidth - sidePadding * 2);
+      const desiredTop = frameR.bottom - viewerR.top - padTop + 24;
+      const top = Math.min(desiredTop, Math.max(24, contentHeight - 260));
+      const maxHeight = Math.max(140, contentHeight - top - 24);
+
+      setInfoPanelStyle({
+        top: `${top}px`,
+        left: `${padLeft + contentWidth / 2}px`,
+        width: `${maxWidth}px`,
+        maxHeight: `${maxHeight}px`
+      });
+    };
+
+    updateInfoPanelPosition();
+    window.addEventListener('resize', updateInfoPanelPosition);
+    window.visualViewport?.addEventListener('resize', updateInfoPanelPosition);
+
+    return () => {
+      window.removeEventListener('resize', updateInfoPanelPosition);
+      window.visualViewport?.removeEventListener('resize', updateInfoPanelPosition);
+    };
+  }, [activeItem]);
+
   return (
-    <div
-      ref={rootRef}
-      className="sphere-root"
-      style={{
-        ['--segments-x']: segments,
-        ['--segments-y']: segments,
-        ['--overlay-blur-color']: overlayBlurColor,
-        ['--tile-radius']: imageBorderRadius,
-        ['--enlarge-radius']: openedImageBorderRadius,
-        ['--image-filter']: grayscale ? 'grayscale(1)' : 'none'
-      }}
-    >
-      <main ref={mainRef} className="sphere-main">
-        <div className="stage">
-          <div ref={sphereRef} className="sphere">
-            {items.map((it, i) => (
-              <div
-                key={`${it.x},${it.y},${i}`}
-                className="item"
-                data-src={it.src}
-                data-offset-x={it.x}
-                data-offset-y={it.y}
-                data-size-x={it.sizeX}
-                data-size-y={it.sizeY}
-                data-description={it.description}
-                data-background={it.background}
-                data-modern-text={it.modernText}
-                data-traditional-text={it.traditionalText}
-                data-keywords={JSON.stringify(it.keywords || [])}
-                style={{
-                  ['--offset-x']: it.x,
-                  ['--offset-y']: it.y,
-                  ['--item-size-x']: it.sizeX,
-                  ['--item-size-y']: it.sizeY
-                }}
-              >
+    <>
+      <div
+        ref={rootRef}
+        className="sphere-root"
+        style={{
+          ['--segments-x']: segments,
+          ['--segments-y']: segments,
+          ['--overlay-blur-color']: overlayBlurColor,
+          ['--tile-radius']: imageBorderRadius,
+          ['--enlarge-radius']: openedImageBorderRadius,
+          ['--image-filter']: grayscale ? 'grayscale(1)' : 'none'
+        }}
+      >
+        <main ref={mainRef} className="sphere-main">
+          <div className="stage">
+            <div ref={sphereRef} className="sphere">
+              {items.map((it, i) => (
                 <div
-                  className="item__image"
-                  role="button"
-                  tabIndex={0}
-                  aria-label={it.alt || 'Open image'}
-                  onClick={onTileClick}
-                  onPointerUp={onTilePointerUp}
+                  key={`${it.x},${it.y},${i}`}
+                  className="item"
+                  data-src={it.src}
+                  data-offset-x={it.x}
+                  data-offset-y={it.y}
+                  data-size-x={it.sizeX}
+                  data-size-y={it.sizeY}
+                  data-description={it.description}
+                  data-background={it.background}
+                  data-modern-text={it.modernText}
+                  data-traditional-text={it.traditionalText}
+                  data-keywords={JSON.stringify(it.keywords || [])}
+                  style={{
+                    ['--offset-x']: it.x,
+                    ['--offset-y']: it.y,
+                    ['--item-size-x']: it.sizeX,
+                    ['--item-size-y']: it.sizeY
+                  }}
                 >
-                  <img src={it.src} draggable={false} alt={it.alt} />
-                  {it.alt && (
-                    <div style={{
-                      position: 'absolute',
-                      bottom: '-24px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      fontSize: '12px',
-                      letterSpacing: '0.1em',
-                      color: 'rgba(255, 255, 255, 0.4)',
-                      whiteSpace: 'nowrap',
-                      pointerEvents: 'none'
-                    }}>
-                      {it.alt}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="overlay" />
-        <div className="overlay overlay--blur" />
-        <div className="edge-fade edge-fade--top" />
-        <div className="edge-fade edge-fade--bottom" />
-
-        <div className="viewer" ref={viewerRef}>
-          <div ref={scrimRef} className="scrim" />
-          <div ref={frameRef} className="frame" />
-          <div className="info-panel">
-            {activeItem && (
-              <>
-                {activeItem.modernText && <div className="quote">{activeItem.modernText}</div>}
-                {activeItem.traditionalText && <div className="poem">{activeItem.traditionalText}</div>}
-                {activeItem.description && <div className="description">{activeItem.description}</div>}
-                {activeItem.background && <div className="background">{activeItem.background}</div>}
-                {activeItem.keywords && activeItem.keywords.length > 0 && (
-                  <div className="keywords">
-                    {activeItem.keywords.map((kw, idx) => (
-                      <span key={idx} className="keyword">{kw}</span>
-                    ))}
+                  <div
+                    className="item__image"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={it.alt || 'Open image'}
+                    onClick={onTileClick}
+                    onPointerUp={onTilePointerUp}
+                  >
+                    <img src={it.src} draggable={false} alt={it.alt} />
+                    {it.alt && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '-24px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        fontSize: '12px',
+                        letterSpacing: '0.1em',
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        whiteSpace: 'nowrap',
+                        pointerEvents: 'none'
+                      }}>
+                        {it.alt}
+                      </div>
+                    )}
                   </div>
-                )}
-              </>
-            )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
+
+          <div className="overlay" />
+          <div className="overlay overlay--blur" />
+          <div className="edge-fade edge-fade--top" />
+          <div className="edge-fade edge-fade--bottom" />
+
+          <div ref={scrimRef} className="scrim" />
+
+          <div className="viewer" ref={viewerRef}>
+            <div ref={frameRef} className="frame" />
+            <div className={`info-panel-layer${activeItem ? ' is-visible' : ''}`} style={infoPanelStyle ?? undefined}>
+              <div className="info-panel">
+                {activeItem && (
+                  <>
+                    {activeItem.modernText && <div className="quote">{activeItem.modernText}</div>}
+                    {activeItem.traditionalText && <div className="poem">{activeItem.traditionalText}</div>}
+                    {activeItem.description && <div className="description">{activeItem.description}</div>}
+                    {activeItem.background && <div className="background">{activeItem.background}</div>}
+                    {activeItem.keywords && activeItem.keywords.length > 0 && (
+                      <div className="keywords">
+                        {activeItem.keywords.map((kw, idx) => (
+                          <span key={idx} className="keyword">{kw}</span>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </>
   );
 }

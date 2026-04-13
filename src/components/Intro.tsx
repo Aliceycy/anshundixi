@@ -18,7 +18,7 @@ const TEXT_STEPS = [
 export default function Intro({ onComplete }: IntroProps) {
   const [step, setStep] = useState(0);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {

@@ -127,71 +127,91 @@ main.sphere-main {
 }
 
 .viewer .frame {
-  height: 55%;
-  max-height: 600px;
+  height: 35%;
+  max-height: 380px;
   aspect-ratio: 1;
   border-radius: var(--enlarge-radius, 32px);
   display: flex;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
-.viewer .info-panel {
+.info-panel-layer {
+  position: absolute;
+  z-index: 31;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+.info-panel-layer.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.info-panel {
   display: flex;
   flex-direction: column;
   align-items: center;
   color: white;
-  opacity: 0;
-  transition: opacity 500ms ease, transform 500ms ease;
-  transform: translateY(20px);
-  pointer-events: none;
-  max-width: 600px;
   text-align: center;
-}
-
-.sphere-root[data-enlarging='true'] .viewer .info-panel {
-  opacity: 1;
-  transform: translateY(0);
+  border-radius: 28px;
+  padding: 20px 22px;
+  background: rgba(4, 4, 8, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.38);
+  overflow-y: auto;
+  max-height: inherit;
 }
 
 .info-panel .quote {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
   color: #fff;
+  letter-spacing: 0.05em;
 }
 
 .info-panel .poem {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 1rem;
-  font-style: italic;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+  white-space: pre-line;
 }
 
 .info-panel .description {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.02em;
 }
 
 .info-panel .background {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 1rem;
-  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  text-align: justify;
+  text-align-last: center;
 }
 
 .info-panel .keywords {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .info-panel .keyword {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 4px 12px;
+  background: transparent;
+  padding: 4px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.8);
   letter-spacing: 0.05em;
 }
@@ -199,33 +219,43 @@ main.sphere-main {
 @media (max-aspect-ratio: 1/1) {
   .viewer .frame {
     height: auto;
-    width: 90%;
-    margin-bottom: 16px;
+    width: 70%;
+    max-width: 300px;
+    margin-bottom: 20px;
+  }
+
+  .info-panel {
+    padding: 16px 16px 18px;
+    border-radius: 24px;
   }
   
   .info-panel .quote {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
   }
   .info-panel .poem {
-    font-size: 0.9rem;
+    font-size: 1rem;
+  }
+  .info-panel .description {
+    font-size: 0.95rem;
   }
   .info-panel .background {
     font-size: 0.8rem;
   }
 }
 
-.viewer .scrim {
+.scrim {
   position: absolute;
   inset: 0;
-  z-index: 10;
+  z-index: 15;
   background: rgba(0, 0, 0, 0.4);
   pointer-events: none;
   opacity: 0;
   transition: opacity 500ms ease;
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
-.sphere-root[data-enlarging='true'] .viewer .scrim {
+.sphere-root[data-enlarging='true'] .scrim {
   opacity: 1;
   pointer-events: all;
 }

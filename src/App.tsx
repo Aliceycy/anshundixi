@@ -9,7 +9,10 @@ import { CHARACTERS, type Character } from './constants';
 import Intro from './components/Intro';
 
 export default function App() {
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('skipIntro') !== 'true';
+  });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -166,9 +169,9 @@ export default function App() {
             >
               <button 
                 onClick={() => window.location.href = 'gallery.html'}
-                className="w-full py-3 px-6 rounded-none border border-red-600 text-white hover:bg-red-600/10 transition-colors text-sm tracking-[0.2em] font-medium uppercase"
+                className="w-full py-3 px-6 rounded-none border border-gray-400 text-gray-200 hover:bg-gray-400/10 transition-colors text-sm tracking-[0.2em] font-medium uppercase"
               >
-                了解更多
+                更多（开发中）
               </button>
             </motion.div>
           )}
@@ -272,4 +275,3 @@ export default function App() {
     </div>
   );
 }
-
